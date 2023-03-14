@@ -9,3 +9,6 @@ example:
 
 
 This python script uses https://opentdb.com/api_config.php api to generate the random trivia questions.
+
+
+Do check out https://github.com/verlox/SendIt-Spammer as he has made a very unique sendit spammer of his own!

@@ -6,10 +6,10 @@ import html
 import lxml.html
 from lxml import html
 
-# Set the API endpoint and parameters
+#trivia api
 url = "https://opentdb.com/api.php"
 params = {
-    "amount": 1, # number of questions to generate
+    "amount": 1, 
     "type": 'multiple',
 }
 print('This will spam a bunch of random trivia questions to the chosen sendit')
@@ -17,22 +17,28 @@ sticker_link = input("\nEnter the sendit link: ")
 match = re.search(r's/([a-f\d-]+)', sticker_link)
 sticker_id = match.group(1)
 
-while True:
-    # Send a GET request to the API
-    response = requests.get(url, params=params)
 
-    # Extract the questions and answers from the response JSON
+while True:
+    response = requests.get(url, params=params)
     data = response.json()
     questions = [lxml.html.fromstring(q["question"]).text_content() for q in data["results"]]
     answers = [lxml.html.fromstring(q["correct_answer"]).text_content() for q in data["results"]]
     incorrect_answers = [[lxml.html.fromstring(answer).text_content() for answer in q["incorrect_answers"]] for q in data["results"]]
 
-    # Extract the author name from the sticker link using XPath
-    page = requests.get(sticker_link)
-    soup = html.fromstring(page.content)
-    author_display_name = soup.xpath('//*[@id="postedByText"]/span/text()[1]')[0]
 
-    #Send the questions and answers
+
+
+    page1 = requests.get(sticker_link)
+    soup1 = html.fromstring(page1.content)
+    script_text1 = soup1.xpath('/html/body/script[1]/text()')[0]
+    author_display_name = soup1.xpath('//*[@id="postedByText"]/span/text()[1]')[0]  #this gets the display name
+    matches1 = re.findall(r'"(\w+)":\s*{"id":\s*"([^"]+)"', script_text1)  #this gets the unique id of the user you are sending to
+
+    for i1, match1 in enumerate(matches1):
+        if i1 == 1:                             #this makes sure it gets the correct user id and outputs it correctly
+            var_id1 = match1[1]  
+
+#the send post 
     send_url = "https://reply.getsendit.com/api/v1/sendpost"
     headers = {
         "accept": "*/*",
@@ -46,16 +52,16 @@ while True:
         "sec-fetch-site": "same-origin"
     }
 
+#makes sure the answer is in a random spot, aswell as the incorrect ones
     for i in range(len(questions)):
         choices = [answers[i]] + incorrect_answers[i]
         random.shuffle(choices)
 
-        # Construct the question message that gets sent, including the author name
         prompt = f"{questions[i]}\n\nA) {choices[0]}\nB) {choices[1]}\nC) {choices[2]}\nD) {choices[3]}\n"
         data = {
             "data": {
                 "postType": "sendit.post-type:question-and-answer-v1",
-                "userId": "f339d5f5-2c0e-4634-99ad-dae3adeb0dcf",
+                "userId": var_id1,
                 "stickerId": sticker_id,
                 "shadowToken": "ffe4b23a-5977-435a-8109-d57cfb4ab6e2",
                 "platform": "snapchat",
@@ -72,8 +78,11 @@ while True:
         #more debug PRINT info
         #print("Response Status Code:", response.status_code)
         #print("Response Text:", response.text)
-        print("Trivia Qeuestion spam sent to sendit user: " + author_display_name)
+        print("\nTrivia Qeuestion spam sent to sendit user: " + author_display_name + "\n#user id: " + var_id1)
 
-        # Wait in seconds before sending the next question, add a wait if you expeience program crashing
-        time.sleep(0.01)
-        #but if you want to try make it spam faster remove the time.sleep
+
+
+        def loading_line(length):
+            return ''.join(random.choice(['-', '=']) for _ in range(length))
+
+        print(loading_line(10)) # this is just so you know if the code has not stopped

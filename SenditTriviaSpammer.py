@@ -12,6 +12,9 @@ params = {
     "amount": 1, 
     "type": 'multiple',
 }
+print('.----------------.')
+print('| Made By ExamV1 |')
+print("'----------------'")
 print('This will spam a bunch of random trivia questions to the chosen sendit')
 sticker_link = input("\nEnter the sendit link: ")
 match = re.search(r's/([a-f\d-]+)', sticker_link)
